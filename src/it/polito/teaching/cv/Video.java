@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
 
-import com.fazecast.jSerialComm.SerialPort;
+//import com.fazecast.jSerialComm.SerialPort;
 
 /**
  * The main class for a JavaFX application. It creates and handle the main
@@ -86,7 +86,7 @@ public class Video extends Application implements Runnable
 
 	@Override
 	public void run() {
-		SerialPort port = SerialPort.getCommPort("COM4");
+		/*SerialPort port = SerialPort.getCommPort("COM4");
 		port.setComPortParameters(9600, 8, 1, 0);
 		port.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
 		
@@ -99,7 +99,7 @@ public class Video extends Application implements Runnable
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-		}
+		} */
 		/*
 		try {
 			while(VideoController.on()) {
