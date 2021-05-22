@@ -14,7 +14,7 @@
             <Insets bottom="25" left="25" right="25" top="25" />
          </padding>
    <children>
-            <Button fx:id="button" alignment="center" onAction="#startCamera" text="Start camera" />
+            <Button fx:id="button" alignment="center" onAction="#startCamera" text="Start Camera" />
    </children>
      </HBox>
         
@@ -23,13 +23,25 @@
 	   <ImageView fx:id="currentFrame" />
    </center>
    <right>
-      <VBox alignment="CENTER_LEFT" spacing="10">
+      <VBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="170.0" spacing="10">
          <padding>
             <Insets left="10" right="20" />
          </padding>
          <children>
-            <ImageView fx:id="logo" />
-            <Text fx:id="rock" text="Rock Type:" />
+            <HBox alignment="CENTER_RIGHT" prefHeight="125.0" prefWidth="47.0">
+               <children>
+                  <Slider fx:id="lightSlider" blockIncrement="5.0" majorTickUnit="51.0" max="255.0" minorTickCount="17" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" value="255.0" />
+               </children>
+            </HBox>
+            <HBox alignment="TOP_RIGHT" prefHeight="100.0" prefWidth="200.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Brightness" textAlignment="RIGHT">
+                     <font>
+                        <Font name="System Bold" size="15.0" />
+                     </font></Text>
+               </children>
+            </HBox>
+            <ImageView fx:id="savedImage" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
          </children>
       </VBox>
    </right>
@@ -40,6 +52,11 @@
          </padding>
          <children>
             <CheckBox fx:id="masked" text="Mask" />
+            <Button fx:id="save" mnemonicParsing="false" onAction="#saved" text="Save" />
+            <Text text="Drill:" textAlignment="RIGHT" wrappingWidth="45.28662109375" />
+            <ImageView fx:id="check" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Light:" />
+            <ImageView fx:id="check1" />
          </children>
       </HBox>
    </bottom>
@@ -52,6 +69,7 @@
             <Text fx:id="r" fill="RED" strokeType="OUTSIDE" strokeWidth="0.0" text="R = " />
             <Text fx:id="g" fill="GREEN" strokeType="OUTSIDE" strokeWidth="0.0" text="G = " />
             <Text fx:id="b" fill="BLUE" strokeType="OUTSIDE" strokeWidth="0.0" text="B = " />
+            <Text fx:id="rock" text="Rock Type:" />
          </children>
       </VBox>
    </left>

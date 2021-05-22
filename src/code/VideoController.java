@@ -1,4 +1,4 @@
-package it.polito.teaching.cv;
+package code;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,23 +7,22 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDouble;
-import org.opencv.core.MatOfFloat;
-import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.videoio.VideoCapture;
 
-import it.polito.elite.teaching.cv.utils.Utils;
+import extra.Utils;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
@@ -51,17 +50,22 @@ public class VideoController
 	// the FXML button
 	@FXML
 	private Button button;
-	// the FXML logo checkbox
-	// the FXML grayscale checkbox
-	// the FXML area for showing the current frame
+	@FXML
+	private Button save;
+	@FXML
+	private Slider lightSlider;
 	@FXML
 	private ImageView currentFrame;
-	@FXML
-	private ImageView logo;
 	@FXML
 	private CheckBox masked;
 	@FXML
 	private Text rock;
+	@FXML
+	private ImageView check;
+	@FXML
+	private ImageView check1;
+	@FXML
+	private ImageView savedImage;
 	
 	public static String[] ints = {"", "", ""};
 	// a timer for acquiring the video stream
@@ -71,6 +75,8 @@ public class VideoController
 	// a flag to change the button behavior
 	private boolean cameraActive;
 	
+	private Mat currentDisplay = new Mat();
+	
 	/**
 	 * Initialize method, automatically called by @{link FXMLLoader}
 	 */
@@ -78,6 +84,17 @@ public class VideoController
 	{
 		this.capture = new VideoCapture();
 		this.cameraActive = false;
+		lightSlider.setDisable(true);
+		updateImageView(savedImage, Utils.mat2Image(Imgcodecs.imread("resources/init.png")));
+		//add Listeners to update rgb values of light
+		lightSlider.valueProperty().addListener(new ChangeListener<Number>() {
+            public void changed(ObservableValue<? extends Number> ov,
+                Number old_val, Number new_val) {
+            		String val = "" + new_val.intValue();
+            		val = "c" + "0".repeat(3-val.length()) + val;
+            		Video.light = val;
+            }
+        });
 	}
 	
 	/**
@@ -86,9 +103,6 @@ public class VideoController
 	@FXML
 	protected void startCamera()
 	{
-		logo.setFitWidth(100);
-		logo.setPreserveRatio(true);
-		updateImageView(logo, Utils.mat2Image(Imgcodecs.imread("resources/log.jpeg")));
 		// set a fixed width for the frame
 		this.currentFrame.setFitWidth(600);
 		// preserve image ratio
@@ -114,9 +128,10 @@ public class VideoController
 						Mat frame = grabFrame();
 						// convert and show the frame
 						if(!masked.isSelected()) {
-							Image imageToShow = Utils.mat2Image(frame);
+							currentDisplay = frame;
+							Image imageToShow = Utils.mat2Image(currentDisplay);
 							updateImageView(currentFrame, imageToShow);
-							double[] vals = getBGR(frame);
+							double[] vals = getBGR(currentDisplay);
 							for(int i = 0; i < 3; i++) {
 								ints[i] = ((int) vals[i]) + "";
 							}
@@ -126,13 +141,13 @@ public class VideoController
 							
 							int total = (int) (vals[0] + vals[1] + vals[2]);
 							if(total < 275) {
-								rock.setText("Rock Type : Mafic");
+								rock.setText("Rock Type:\nMafic");
 							}
 							else if (total < 325) {
-								rock.setText("Rock Type : Intermediate");
+								rock.setText("Rock Type:\nIntermediate");
 							}
 							else {
-								rock.setText("Rock Type : Felsic");
+								rock.setText("Rock Type:\nFelsic");
 							}
 							//r.setText("hi");
 						}
@@ -147,14 +162,26 @@ public class VideoController
 							
 							int total = (int) (vals[0] + vals[1] + vals[2]);
 							if(total < 275) {
-								rock.setText("Rock Type : Mafic");
+								rock.setText("Rock Type:\nMafic");
 							}
 							else if (total < 325) {
-								rock.setText("Rock Type : Intermediate");
+								rock.setText("Rock Type:\nIntermediate");
 							}
 							else {
-								rock.setText("Rock Type : Felsic");
+								rock.setText("Rock Type:\nFelsic");
 							}
+						}
+						if(Video.drillOn) {
+							updateImageView(check, Utils.mat2Image(Imgcodecs.imread("resources/check.png")));				
+						} else {
+							updateImageView(check, Utils.mat2Image(Imgcodecs.imread("resources/cross.png")));
+						}
+						if(Video.lightOn) {
+							lightSlider.setDisable(false);
+							updateImageView(check1, Utils.mat2Image(Imgcodecs.imread("resources/check.png")));				
+						} else {
+							lightSlider.setDisable(true);
+							updateImageView(check1, Utils.mat2Image(Imgcodecs.imread("resources/cross.png")));
 						}
 					}
 				};
@@ -269,6 +296,7 @@ public class VideoController
 		Mat object = new Mat();
 		Core.bitwise_and(temp, temp, object, mask);
 		Image imageToShow = Utils.mat2Image(object);
+		currentDisplay = object;
 		updateImageView(currentFrame, imageToShow);
 		
 		MatOfDouble mean = new MatOfDouble();
@@ -328,4 +356,26 @@ public class VideoController
 		return mean.toArray();
 	}
 	
+	public static void saveImage(Mat mat) {
+		Point loc = new Point(mat.cols() / 16, mat.rows()/ 4);
+		Mat img = mat.clone();
+		Imgproc.putText(img, "test", loc, Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0, 0 , 255), 2);
+		Imgcodecs.imwrite("output/data.jpg", img);
+	}
+	
+	@FXML
+	protected void saved()
+	{
+		Mat img = currentDisplay.clone();
+		Imgproc.putText(img, r.getText(), new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16*2), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0, 0 , 255), 2);
+		Imgproc.putText(img, g.getText(), new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16 * 3), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(0, 255 , 0), 2);
+		Imgproc.putText(img, b.getText(), new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16 * 4), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255, 0 , 0), 2);
+		Imgproc.putText(img, "Rock = " + rock.getText().substring(rock.getText().indexOf("\n") + 1), new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16 * 5), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255, 255 , 255), 2);
+		Imgproc.putText(img, "Drill = " + Video.drillOn, new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16 * 6), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255, 255 , 255), 2);
+		Imgproc.putText(img, "Light = " + Video.lightOn, new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16 * 7), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255, 255 , 255), 2);
+		Imgproc.putText(img, "Bright = " + Video.light.substring(1), new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16 * 8), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255, 255 , 255), 2);
+		Imgproc.putText(img, "Mask = " + masked.isSelected(), new Point(currentDisplay.cols() / 16, currentDisplay.rows()/ 16 * 9), Core.FONT_HERSHEY_PLAIN, 2, new Scalar(255, 255 , 255), 2);
+		Imgcodecs.imwrite("output/data.jpg", img);
+		updateImageView(savedImage, Utils.mat2Image(Imgcodecs.imread("output/data.jpg")));
+	}
 }
