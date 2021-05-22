@@ -27,18 +27,16 @@ import extra.Utils;
  * @since 1.0 (2013-11-20)
  * 
  */
-public class Video extends Application implements Runnable
-{
+public class Video extends Application implements Runnable {
 	public static volatile boolean drillOn;
 	public static volatile boolean lightOn;
-    public static volatile boolean arduinoOn = true;
-    public static volatile String light = "c255";
-    public static volatile String lastColor = "c255";
+	public static volatile boolean arduinoOn = true;
+	public static volatile String light = "c255";
+	public static volatile String lastColor = "c255";
+
 	@Override
-	public void start(Stage primaryStage)
-	{
-		try
-		{
+	public void start(Stage primaryStage) {
+		try {
 			// load the FXML resource
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("Video.fxml"));
 			// store the root element so that the controllers can use it
@@ -56,45 +54,40 @@ public class Video extends Application implements Runnable
 			// set the proper behavior on closing the application
 			VideoController controller = loader.getController();
 			primaryStage.setOnCloseRequest((new EventHandler<WindowEvent>() {
-				public void handle(WindowEvent we)
-				{
+				public void handle(WindowEvent we) {
 					controller.setClosed();
 				}
 			}));
-			
-		}
-		catch (Exception e)
-		{
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void main(String[] args) throws SerialPortException
-	{
-		
+
+	public static void main(String[] args) throws SerialPortException {
+
 		// load the native OpenCV library
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		Video obj = new Video();
 		Thread thread = new Thread(obj);
 		thread.start();
 		launch(args);
-		
-		
+
 	}
+
 	@Override
 	public void stop() {
 		System.out.println("Exiting");
 		arduinoOn = false;
 	}
+
 	@Override
 	public void run() {
 		try {
-			Arduino.main(null); //start Arduino Java Communication
+			Arduino.main(null); // start Arduino Java Communication
 		} catch (SerialPortException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
 }
