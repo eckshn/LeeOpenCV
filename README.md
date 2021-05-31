@@ -1,7 +1,7 @@
 # All Ore Nothing
 ## Installation
 1. Get Eclipse to work
-2. Installing
+2. Installing (Windows)
 - https://opencv.org/releases/
   - https://opencv-java-tutorials.readthedocs.io/en/latest/01-installing-opencv-for-java.html#set-up-opencv-for-java-in-eclipse
   - Use guide linked above to properly install OpenCV 
